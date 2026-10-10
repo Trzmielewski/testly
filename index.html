@@ -2,227 +2,413 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Testly — testy online</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#172033}
-    header{height:76px;background:#fff;border-bottom:1px solid #e5e9f2;display:flex;align-items:center;justify-content:space-between;padding:0 7%;position:sticky;top:0}
-    .logo{font-size:26px;font-weight:850;letter-spacing:-1px;color:#5146e5}
-    .logo span{color:#172033}
-    .tag{font-size:13px;color:#667085}
-    main{max-width:1100px;margin:65px auto;padding:0 24px;display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:center}
-    .eyebrow{color:#5146e5;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase}
-    h1{font-size:clamp(38px,5vw,62px);line-height:1.05;letter-spacing:-2.5px;margin:18px 0}
-    h1 span{color:#5146e5}
-    .intro{font-size:17px;line-height:1.8;color:#667085;max-width:520px}
-    .features{display:grid;gap:14px;margin-top:30px}
-    .feature{background:#fff;border:1px solid #e6e9f2;border-radius:14px;padding:17px;display:flex;gap:14px;align-items:center}
-    .feature-icon{width:42px;height:42px;border-radius:12px;background:#eeedff;display:grid;place-items:center;font-size:21px}
-    .feature strong{display:block;margin-bottom:5px}
-    .feature small{color:#667085}
-    .panel{background:#fff;border:1px solid #e4e7ef;border-radius:22px;padding:28px;box-shadow:0 20px 60px #26315b12}
-    .tabs{display:flex;gap:8px;background:#f3f4f8;padding:5px;border-radius:12px;margin-bottom:24px}
-    .tabs button{flex:1;border:0;padding:12px;border-radius:9px;background:transparent;font-weight:700;cursor:pointer;color:#667085}
-    .tabs button.active{background:white;color:#5146e5;box-shadow:0 2px 7px #10182812}
-    h2{margin:0 0 8px;font-size:25px}
-    .sub{color:#667085;font-size:14px;margin-bottom:24px;line-height:1.6}
-    label{font-size:13px;font-weight:700;display:block;margin:16px 0 7px}
-    input{width:100%;padding:13px 14px;border:1px solid #d8ddea;border-radius:10px;font-size:15px;outline:none}
-    input:focus{border-color:#6559e9;box-shadow:0 0 0 3px #5146e51c}
-    .primary{width:100%;padding:14px;border:0;border-radius:10px;background:#5146e5;color:white;font-size:15px;font-weight:800;cursor:pointer;margin-top:20px}
-    .primary:hover{background:#4035d0}
-    .message{font-size:13px;line-height:1.6;margin-top:15px;overflow-wrap:anywhere}
-    .success{color:#087443}.error{color:#c43232}
-    .hidden{display:none!important}
-    .dashboard{max-width:1000px;margin:45px auto;padding:0 22px}
-    .dashhead{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-    .secondary{border:1px solid #d8ddea;background:white;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
-    .empty{background:white;border:1px dashed #cdd3e0;border-radius:18px;padding:38px;text-align:center;margin-top:25px}
-    .empty p{color:#667085;line-height:1.7}
-    .testcard{background:white;border:1px solid #e5e7ef;border-radius:14px;padding:18px;margin-top:12px}
-    @media(max-width:800px){main{grid-template-columns:1fr;margin:30px auto;gap:28px}header{padding:0 20px}.intro{font-size:15px}h1{letter-spacing:-1.5px}.panel{padding:22px}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Testly — Twoje testy online</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f6fb;color:#192033;font-family:Arial,sans-serif}
+header{height:72px;background:white;border-bottom:1px solid #e5e7ef;display:flex;align-items:center;justify-content:space-between;padding:0 max(calc((100% - 1080px)/2),22px)}
+.logo{font-size:27px;font-weight:900;color:#5146e5;letter-spacing:-1px}
+button{cursor:pointer;font-weight:700;border-radius:9px;padding:11px 15px;border:0}
+.primary{background:#5146e5;color:white}
+.primary:hover{background:#4035d0}
+.secondary{background:white;border:1px solid #d9ddeb;color:#30384c}
+main{max-width:1080px;margin:40px auto;padding:0 22px}
+h1{font-size:36px;letter-spacing:-1.3px;margin:10px 0}
+h2{font-size:22px}
+.muted{color:#737b8e;line-height:1.6}
+.card{background:white;border:1px solid #e4e7ef;border-radius:16px;padding:23px;margin:18px 0}
+.auth{max-width:440px;margin:65px auto}
+input,textarea,select{width:100%;border:1px solid #d9deea;border-radius:9px;padding:12px;font:inherit;background:white}
+label{font-size:13px;font-weight:700;display:block;margin:16px 0 7px}
+textarea{resize:vertical;min-height:75px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1;min-width:0}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;margin:20px 0}
+.tabs button{background:#e9eaf4;color:#4e566a}
+.tabs button.active{background:#5146e5;color:white}
+.hidden{display:none!important}
+.notice{margin-top:14px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.error{color:#bd3030}.success{color:#087b50}
+.question{border:1px solid #e0e4ef;border-radius:12px;padding:17px;margin:14px 0}
+.questionhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.option{display:grid;grid-template-columns:25px 1fr;gap:8px;align-items:center;margin-top:10px}
+.option input[type=radio]{width:18px}
+.option input[type=text]{min-width:0}
+.testitem{border:1px solid #e2e5ef;border-radius:12px;padding:17px;margin-top:12px}
+.testitem h3{margin:0 0 6px}
+.badge{font-size:12px;background:#efedff;color:#5146e5;border-radius:20px;padding:5px 9px}
+footer{text-align:center;color:#8990a0;padding:30px;font-size:12px}
+@media(max-width:600px){main{margin:25px auto}h1{font-size:30px}.card{padding:17px}header{padding:0 16px}.row{gap:7px}}
+</style>
 </head>
 <body>
 <header>
-  <div class="logo">testly<span>.</span></div>
-  <div class="tag">Proste testy. Szybkie wyniki.</div>
+  <div class="logo">testly.</div>
+  <div id="headerRight"></div>
 </header>
 
-<main id="authView">
-  <section>
-    <div class="eyebrow">Twoja nauka, Twój sposób</div>
-    <h1>Sprawdź swoją wiedzę.<br><span>Na własnych zasadach.</span></h1>
-    <p class="intro">Twórz testy, udostępniaj je innym i sprawdzaj wyniki w jednym miejscu.</p>
-    <div class="features">
-      <div class="feature"><div class="feature-icon">✍️</div><div><strong>Twórz własne testy</strong><small>Dodawaj pytania i odpowiedzi.</small></div></div>
-      <div class="feature"><div class="feature-icon">🔗</div><div><strong>Udostępniaj jednym linkiem</strong><small>Zapraszaj znajomych do rozwiązywania.</small></div></div>
-      <div class="feature"><div class="feature-icon">📊</div><div><strong>Sprawdzaj wyniki</strong><small>Dowiedz się, co już umiesz.</small></div></div>
+<main id="authView" class="auth">
+  <div class="card">
+    <span class="badge">TESTLY · ONLINE</span>
+    <h1>Wiedza pod kontrolą.</h1>
+    <p class="muted">Zaloguj się, twórz testy i sprawdzaj swoją wiedzę.</p>
+    <div class="tabs">
+      <button id="loginTab" class="active">Logowanie</button>
+      <button id="signupTab">Rejestracja</button>
+    </div>
+    <form id="authForm">
+      <label for="email">Adres e-mail</label>
+      <input id="email" type="email" autocomplete="email" required placeholder="ty@email.com">
+      <label for="password">Hasło (minimum 8 znaków)</label>
+      <input id="password" type="password" minlength="8" autocomplete="current-password" required>
+      <button id="authSubmit" class="primary" style="width:100%;margin-top:20px">Zaloguj się</button>
+    </form>
+    <div id="authMsg" class="notice" role="status"></div>
+  </div>
+</main>
+
+<main id="appView" class="hidden">
+  <div class="toprow">
+    <div>
+      <div class="badge">PANEL UŻYTKOWNIKA</div>
+      <h1>Moje testy</h1>
+      <div class="muted" id="welcome"></div>
+    </div>
+    <button id="logout" class="secondary">Wyloguj się</button>
+  </div>
+
+  <div class="tabs">
+    <button id="myTestsTab" class="active">Moje testy</button>
+    <button id="createTab">+ Utwórz test</button>
+  </div>
+
+  <section id="listView">
+    <div class="card">
+      <div class="toprow">
+        <div><h2>Twoja biblioteka</h2><div class="muted">Testy zapisane na Twoim koncie.</div></div>
+        <button id="newTest" class="primary">+ Nowy test</button>
+      </div>
+      <div id="testList"><p class="muted">Ładowanie testów…</p></div>
+      <div id="listMsg" class="notice"></div>
     </div>
   </section>
 
-  <section class="panel">
-    <div class="tabs">
-      <button id="loginTab" class="active" type="button">Logowanie</button>
-      <button id="signupTab" type="button">Rejestracja</button>
+  <section id="editorView" class="hidden">
+    <div class="card">
+      <h2>Utwórz test</h2>
+      <p class="muted">Dodaj pytania i zaznacz prawidłowe odpowiedzi. Możesz dodać kilka pytań.</p>
+      <form id="testForm">
+        <label for="testTitle">Nazwa testu</label>
+        <input id="testTitle" maxlength="120" required placeholder="Np. Elektrostatyka — sprawdzian">
+
+        <label for="testDescription">Opis (opcjonalnie)</label>
+        <textarea id="testDescription" maxlength="1000" placeholder="Krótki opis testu"></textarea>
+
+        <div class="toprow" style="margin-top:25px">
+          <h2>Pytania</h2>
+          <button id="addQuestion" type="button" class="secondary">+ Dodaj pytanie</button>
+        </div>
+
+        <div id="questions"></div>
+        <button id="saveTest" class="primary" type="submit" style="width:100%;margin-top:20px">Zapisz test</button>
+        <button id="cancelEdit" class="secondary" type="button" style="width:100%;margin-top:10px">Anuluj</button>
+        <div id="editorMsg" class="notice"></div>
+      </form>
     </div>
-    <h2 id="formTitle">Witaj ponownie!</h2>
-    <div class="sub" id="formSub">Zaloguj się, aby przejść do swoich testów.</div>
-    <form id="authForm">
-      <label for="email">Adres e-mail</label>
-      <input id="email" type="email" autocomplete="email" placeholder="ty@przyklad.pl" required>
-      <label for="password">Hasło</label>
-      <input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="Minimum 8 znaków" required>
-      <button id="submitBtn" class="primary" type="submit">Zaloguj się</button>
-    </form>
-    <div id="authMessage" class="message" role="status"></div>
   </section>
 </main>
 
-<section id="dashboardView" class="dashboard hidden">
-  <div class="dashhead">
-    <div><div class="eyebrow">Twój panel</div><h1 style="font-size:38px;margin:10px 0">Moje testy</h1><div id="userEmail" class="sub"></div></div>
-    <button id="logoutBtn" class="secondary">Wyloguj się</button>
-  </div>
-  <div class="empty">
-    <div style="font-size:42px">📝</div>
-    <h2>Twoje miejsce na testy</h2>
-    <p>Logowanie działa. W następnym kroku dodamy kreator testów<br>i zapisywanie ich na Twoim koncie.</p>
-  </div>
-</section>
+<footer>Testly · Platforma do tworzenia testów online</footer>
 
 <script>
-  // Adres projektu Supabase
-  const SUPABASE_URL = 'https://mjnxhwmklewoxdtdhvmy.supabase.co';
+const SUPABASE_URL = 'https://mjnxhwmklewoxdtdhvmy.supabase.co';
 
-  // Wklej tutaj swój klucz Publishable (sb_publishable_...)
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_M2_5wQnYWrMKZnZECUtwWg_2y57I-Pd';
+// Wklej swój klucz sb_publishable_... z Supabase:
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_M2_5wQnYWrMKZnZECUtwWg_2y57I-Pd';
 
-  const authMessage = document.getElementById('authMessage');
-  const authView = document.getElementById('authView');
-  const dashboardView = document.getElementById('dashboardView');
-  const form = document.getElementById('authForm');
-  let mode = 'login';
+const $ = id => document.getElementById(id);
+let client = null;
+let mode = 'login';
+let currentUser = null;
+let questionCount = 0;
 
-  const loginTab = document.getElementById('loginTab');
-  const signupTab = document.getElementById('signupTab');
+function message(id,text,type='') {
+  $(id).textContent = text;
+  $(id).className = 'notice ' + type;
+}
 
-  function showMessage(text, type='') {
-    authMessage.className = 'message ' + type;
-    authMessage.textContent = text;
+function init() {
+  if (!window.supabase) throw new Error('Nie załadowano biblioteki Supabase. Sprawdź internet.');
+  if (SUPABASE_PUBLISHABLE_KEY === 'WKLEJ_TUTAJ_KLUCZ_PUBLICZNY') {
+    throw new Error('Wklej swój klucz Publishable w kodzie strony.');
   }
+  if (!client) client = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  return client;
+}
 
-  function setMode(nextMode) {
-    mode = nextMode;
-    loginTab.classList.toggle('active', mode === 'login');
-    signupTab.classList.toggle('active', mode === 'signup');
-    document.getElementById('formTitle').textContent =
-      mode === 'login' ? 'Witaj ponownie!' : 'Utwórz konto';
-    document.getElementById('formSub').textContent =
-      mode === 'login' ? 'Zaloguj się, aby przejść do swoich testów.' :
-      'Zarejestruj się, aby zacząć tworzyć testy.';
-    document.getElementById('submitBtn').textContent =
-      mode === 'login' ? 'Zaloguj się' : 'Utwórz konto';
-    document.getElementById('password').autocomplete =
-      mode === 'login' ? 'current-password' : 'new-password';
-    showMessage('');
-  }
+function authMode(next) {
+  mode = next;
+  $('loginTab').classList.toggle('active',mode==='login');
+  $('signupTab').classList.toggle('active',mode==='signup');
+  $('authSubmit').textContent = mode==='login'?'Zaloguj się':'Utwórz konto';
+  $('password').autocomplete = mode==='login'?'current-password':'new-password';
+  message('authMsg','','');
+}
+$('loginTab').onclick = () => authMode('login');
+$('signupTab').onclick = () => authMode('signup');
 
-  loginTab.addEventListener('click', () => setMode('login'));
-  signupTab.addEventListener('click', () => setMode('signup'));
-
-  let supabaseClient;
-
-  function initSupabase() {
-    if (SUPABASE_PUBLISHABLE_KEY === 'WKLEJ_TUTAJ_KLUCZ_PUBLICZNY') {
-      showMessage('Konfiguracja wymaga jeszcze klucza Publishable z Supabase.', 'error');
-      return false;
-    }
-    if (!window.supabase) {
-      showMessage('Nie udało się załadować biblioteki. Sprawdź połączenie z internetem.', 'error');
-      return false;
-    }
-    if (!supabaseClient) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    }
-    return true;
-  }
-
-  function showDashboard(user) {
-    authView.classList.add('hidden');
-    dashboardView.classList.remove('hidden');
-    document.getElementById('userEmail').textContent = user.email || 'Zalogowany użytkownik';
-  }
-
-  function showAuth() {
-    dashboardView.classList.add('hidden');
-    authView.classList.remove('hidden');
-  }
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!initSupabase()) return;
-
-    const button = document.getElementById('submitBtn');
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    button.disabled = true;
-    button.textContent = 'Chwileczkę…';
-    showMessage('');
-
-    try {
-      if (mode === 'signup') {
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
-        if (error) throw error;
-
-        if (data.session) {
-          showDashboard(data.user);
-        } else {
-          showMessage('Konto utworzone! Sprawdź skrzynkę e-mail i potwierdź adres, a następnie zaloguj się.', 'success');
-          setMode('login');
-        }
+$('authForm').onsubmit = async e => {
+  e.preventDefault();
+  let button = $('authSubmit');
+  button.disabled = true;
+  button.textContent = 'Chwileczkę…';
+  try {
+    const db = init();
+    const email = $('email').value.trim();
+    const password = $('password').value;
+    if (mode==='signup') {
+      const {data,error} = await db.auth.signUp({email,password});
+      if (error) throw error;
+      if (data.session) {
+        await enterApp(data.session.user);
       } else {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        showDashboard(data.user);
+        message('authMsg','Konto utworzone. Sprawdź e-mail, potwierdź adres i zaloguj się.','success');
       }
-    } catch (error) {
-      showMessage(error.message || 'Wystąpił błąd. Spróbuj ponownie.', 'error');
-    } finally {
-      button.disabled = false;
-      button.textContent = mode === 'login' ? 'Zaloguj się' : 'Utwórz konto';
+    } else {
+      const {data,error} = await db.auth.signInWithPassword({email,password});
+      if (error) throw error;
+      await enterApp(data.user);
     }
-  });
-
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    if (!initSupabase()) return;
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    showAuth();
-  });
-
-  async function startApp() {
-    if (!initSupabase()) return;
-    const { data: { session }, error } = await supabaseClient.auth.getSession();
-    if (error) {
-      showMessage(error.message, 'error');
-      return;
-    }
-    if (session) showDashboard(session.user);
-
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-      if (session) showDashboard(session.user);
-      else showAuth();
-    });
+  } catch(err) {
+    message('authMsg',err.message||'Wystąpił błąd.','error');
+  } finally {
+    button.disabled = false;
+    button.textContent = mode==='login'?'Zaloguj się':'Utwórz konto';
   }
+};
 
-  startApp();
+async function enterApp(user) {
+  currentUser = user;
+  $('authView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('welcome').textContent = user.email || 'Zalogowany użytkownik';
+  $('headerRight').textContent = 'Twoje konto';
+  showList();
+  await loadTests();
+}
+
+$('logout').onclick = async () => {
+  try {
+    const {error} = await init().auth.signOut();
+    if (error) throw error;
+    currentUser = null;
+    $('appView').classList.add('hidden');
+    $('authView').classList.remove('hidden');
+    $('headerRight').textContent = '';
+  } catch(err) {
+    alert(err.message);
+  }
+};
+
+function showList() {
+  $('listView').classList.remove('hidden');
+  $('editorView').classList.add('hidden');
+  $('myTestsTab').classList.add('active');
+  $('createTab').classList.remove('active');
+}
+function showEditor() {
+  $('listView').classList.add('hidden');
+  $('editorView').classList.remove('hidden');
+  $('myTestsTab').classList.remove('active');
+  $('createTab').classList.add('active');
+}
+$('myTestsTab').onclick = showList;
+$('createTab').onclick = () => newTestForm();
+$('newTest').onclick = () => newTestForm();
+$('cancelEdit').onclick = showList;
+
+function newTestForm() {
+  $('testForm').reset();
+  $('questions').innerHTML = '';
+  questionCount = 0;
+  addQuestion();
+  message('editorMsg','','');
+  showEditor();
+}
+
+function addQuestion() {
+  const n = ++questionCount;
+  const div = document.createElement('div');
+  div.className = 'question';
+  div.dataset.question = String(n);
+  div.innerHTML = `
+    <div class="questionhead">
+      <strong>Pytanie ${n}</strong>
+      <button type="button" class="secondary removeQuestion">Usuń</button>
+    </div>
+    <label>Treść pytania</label>
+    <textarea class="qtext" required maxlength="2000" placeholder="Wpisz pytanie…"></textarea>
+    <div class="options"></div>
+    <button type="button" class="secondary addOption" style="margin-top:12px">+ Dodaj odpowiedź</button>
+    <p class="muted" style="font-size:12px">Zaznacz kółko przy prawidłowej odpowiedzi.</p>`;
+  $('questions').appendChild(div);
+  div.querySelector('.removeQuestion').onclick = () => {
+    if ($('questions').children.length <= 1) {
+      message('editorMsg','Test musi mieć co najmniej jedno pytanie.','error');
+      return;
+    }
+    div.remove();
+    renumberQuestions();
+  };
+  div.querySelector('.addOption').onclick = () => addOption(div);
+  addOption(div);
+  addOption(div);
+  addOption(div);
+}
+function addOption(question) {
+  const options = question.querySelector('.options');
+  if (options.children.length >= 6) {
+    message('editorMsg','Możesz dodać maksymalnie 6 odpowiedzi do pytania.','error');
+    return;
+  }
+  const line = document.createElement('div');
+  line.className = 'option';
+  line.innerHTML = `
+    <input type="radio" name="correct-${question.dataset.question}" aria-label="Prawidłowa odpowiedź">
+    <input type="text" class="optionText" maxlength="500" required placeholder="Treść odpowiedzi">`;
+  line.querySelector('input[type=radio]').onchange = () => {
+    question.querySelectorAll('.option input[type=radio]').forEach(r => {
+      r.checked = r === line.querySelector('input[type=radio]');
+    });
+  };
+  options.appendChild(line);
+}
+function renumberQuestions() {
+  [...$('questions').children].forEach((q,i) => {
+    q.querySelector('.questionhead strong').textContent = 'Pytanie ' + (i+1);
+  });
+}
+$('addQuestion').onclick = addQuestion;
+
+$('testForm').onsubmit = async e => {
+  e.preventDefault();
+  const button = $('saveTest');
+  button.disabled = true;
+  button.textContent = 'Zapisywanie…';
+  try {
+    if (!currentUser) throw new Error('Zaloguj się ponownie.');
+    const questions = [...$('questions').children].map((q,i) => {
+      const options = [...q.querySelectorAll('.optionText')].map(x=>x.value.trim());
+      const selected = [...q.querySelectorAll('input[type=radio]')].findIndex(r=>r.checked);
+      if (!q.querySelector('.qtext').value.trim()) throw new Error(`Uzupełnij treść pytania ${i+1}.`);
+      if (options.some(x=>!x)) throw new Error(`Uzupełnij wszystkie odpowiedzi w pytaniu ${i+1}.`);
+      if (options.length<2) throw new Error(`Pytanie ${i+1} musi mieć minimum 2 odpowiedzi.`);
+      if (selected<0) throw new Error(`Zaznacz prawidłową odpowiedź w pytaniu ${i+1}.`);
+      return {
+        text:q.querySelector('.qtext').value.trim(),
+        options,
+        correctIndex:selected,
+        points:1
+      };
+    });
+    const payload = {
+      user_id:currentUser.id,
+      title:$('testTitle').value.trim(),
+      description:$('testDescription').value.trim(),
+      questions,
+      is_public:false
+    };
+    const {error} = await init().from('tests').insert(payload);
+    if (error) throw error;
+    message('editorMsg','Test zapisany!','success');
+    await loadTests();
+    showList();
+    message('listMsg','Test został zapisany na Twoim koncie.','success');
+  } catch(err) {
+    message('editorMsg',err.message||'Nie udało się zapisać testu.','error');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Zapisz test';
+  }
+};
+
+async function loadTests() {
+  if (!currentUser) return;
+  $('testList').innerHTML = '<p class="muted">Ładowanie…</p>';
+  message('listMsg','','');
+  try {
+    const {data,error} = await init().from('tests')
+      .select('id,title,description,questions,created_at')
+      .order('created_at',{ascending:false});
+    if (error) throw error;
+    $('testList').innerHTML = '';
+    if (!data.length) {
+      $('testList').innerHTML = '<div class="testitem"><h3>Brak testów</h3><p class="muted">Utwórz swój pierwszy test, korzystając z przycisku powyżej.</p></div>';
+      return;
+    }
+    data.forEach(test => {
+      const card = document.createElement('div');
+      card.className = 'testitem';
+      const title = document.createElement('h3');
+      title.textContent = test.title;
+      const description = document.createElement('p');
+      description.className = 'muted';
+      description.textContent = test.description || 'Bez opisu';
+      const meta = document.createElement('p');
+      meta.className = 'muted';
+      meta.textContent = `${Array.isArray(test.questions)?test.questions.length:0} pytań · ${new Date(test.created_at).toLocaleDateString('pl-PL')}`;
+      const del = document.createElement('button');
+      del.className = 'secondary';
+      del.textContent = 'Usuń test';
+      del.onclick = async () => {
+        if (!confirm(`Czy na pewno usunąć test „${test.title}”?`)) return;
+        del.disabled = true;
+        const {error} = await init().from('tests').delete().eq('id',test.id);
+        if (error) {
+          message('listMsg',error.message,'error');
+          del.disabled = false;
+        } else {
+          await loadTests();
+          message('listMsg','Test usunięty.','success');
+        }
+      };
+      card.append(title,description,meta,del);
+      $('testList').appendChild(card);
+    });
+  } catch(err) {
+    $('testList').innerHTML = '';
+    message('listMsg','Nie udało się pobrać testów: '+err.message,'error');
+  }
+}
+
+async function startApp() {
+  try {
+    const db = init();
+    const {data,error} = await db.auth.getSession();
+    if (error) throw error;
+    if (data.session) await enterApp(data.session.user);
+    db.auth.onAuthStateChange((event,session) => {
+      if (session && !currentUser) {
+        currentUser = session.user;
+        $('authView').classList.add('hidden');
+        $('appView').classList.remove('hidden');
+        $('welcome').textContent = session.user.email || '';
+        loadTests();
+      } else if (!session && currentUser) {
+        currentUser = null;
+        $('appView').classList.add('hidden');
+        $('authView').classList.remove('hidden');
+      }
+    });
+  } catch(err) {
+    message('authMsg',err.message||'Nie udało się uruchomić aplikacji.','error');
+  }
+}
+startApp();
 </script>
 </body>
 </html>
