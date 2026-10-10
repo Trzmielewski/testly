@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testly — testy online</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#172033}
+    header{height:76px;background:#fff;border-bottom:1px solid #e5e9f2;display:flex;align-items:center;justify-content:space-between;padding:0 7%;position:sticky;top:0}
+    .logo{font-size:26px;font-weight:850;letter-spacing:-1px;color:#5146e5}
+    .logo span{color:#172033}
+    .tag{font-size:13px;color:#667085}
+    main{max-width:1100px;margin:65px auto;padding:0 24px;display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:center}
+    .eyebrow{color:#5146e5;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase}
+    h1{font-size:clamp(38px,5vw,62px);line-height:1.05;letter-spacing:-2.5px;margin:18px 0}
+    h1 span{color:#5146e5}
+    .intro{font-size:17px;line-height:1.8;color:#667085;max-width:520px}
+    .features{display:grid;gap:14px;margin-top:30px}
+    .feature{background:#fff;border:1px solid #e6e9f2;border-radius:14px;padding:17px;display:flex;gap:14px;align-items:center}
+    .feature-icon{width:42px;height:42px;border-radius:12px;background:#eeedff;display:grid;place-items:center;font-size:21px}
+    .feature strong{display:block;margin-bottom:5px}
+    .feature small{color:#667085}
+    .panel{background:#fff;border:1px solid #e4e7ef;border-radius:22px;padding:28px;box-shadow:0 20px 60px #26315b12}
+    .tabs{display:flex;gap:8px;background:#f3f4f8;padding:5px;border-radius:12px;margin-bottom:24px}
+    .tabs button{flex:1;border:0;padding:12px;border-radius:9px;background:transparent;font-weight:700;cursor:pointer;color:#667085}
+    .tabs button.active{background:white;color:#5146e5;box-shadow:0 2px 7px #10182812}
+    h2{margin:0 0 8px;font-size:25px}
+    .sub{color:#667085;font-size:14px;margin-bottom:24px;line-height:1.6}
+    label{font-size:13px;font-weight:700;display:block;margin:16px 0 7px}
+    input{width:100%;padding:13px 14px;border:1px solid #d8ddea;border-radius:10px;font-size:15px;outline:none}
+    input:focus{border-color:#6559e9;box-shadow:0 0 0 3px #5146e51c}
+    .primary{width:100%;padding:14px;border:0;border-radius:10px;background:#5146e5;color:white;font-size:15px;font-weight:800;cursor:pointer;margin-top:20px}
+    .primary:hover{background:#4035d0}
+    .message{font-size:13px;line-height:1.6;margin-top:15px;overflow-wrap:anywhere}
+    .success{color:#087443}.error{color:#c43232}
+    .hidden{display:none!important}
+    .dashboard{max-width:1000px;margin:45px auto;padding:0 22px}
+    .dashhead{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+    .secondary{border:1px solid #d8ddea;background:white;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .empty{background:white;border:1px dashed #cdd3e0;border-radius:18px;padding:38px;text-align:center;margin-top:25px}
+    .empty p{color:#667085;line-height:1.7}
+    .testcard{background:white;border:1px solid #e5e7ef;border-radius:14px;padding:18px;margin-top:12px}
+    @media(max-width:800px){main{grid-template-columns:1fr;margin:30px auto;gap:28px}header{padding:0 20px}.intro{font-size:15px}h1{letter-spacing:-1.5px}.panel{padding:22px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">testly<span>.</span></div>
+  <div class="tag">Proste testy. Szybkie wyniki.</div>
+</header>
+
+<main id="authView">
+  <section>
+    <div class="eyebrow">Twoja nauka, Twój sposób</div>
+    <h1>Sprawdź swoją wiedzę.<br><span>Na własnych zasadach.</span></h1>
+    <p class="intro">Twórz testy, udostępniaj je innym i sprawdzaj wyniki w jednym miejscu.</p>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">✍️</div><div><strong>Twórz własne testy</strong><small>Dodawaj pytania i odpowiedzi.</small></div></div>
+      <div class="feature"><div class="feature-icon">🔗</div><div><strong>Udostępniaj jednym linkiem</strong><small>Zapraszaj znajomych do rozwiązywania.</small></div></div>
+      <div class="feature"><div class="feature-icon">📊</div><div><strong>Sprawdzaj wyniki</strong><small>Dowiedz się, co już umiesz.</small></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="tabs">
+      <button id="loginTab" class="active" type="button">Logowanie</button>
+      <button id="signupTab" type="button">Rejestracja</button>
+    </div>
+    <h2 id="formTitle">Witaj ponownie!</h2>
+    <div class="sub" id="formSub">Zaloguj się, aby przejść do swoich testów.</div>
+    <form id="authForm">
+      <label for="email">Adres e-mail</label>
+      <input id="email" type="email" autocomplete="email" placeholder="ty@przyklad.pl" required>
+      <label for="password">Hasło</label>
+      <input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="Minimum 8 znaków" required>
+      <button id="submitBtn" class="primary" type="submit">Zaloguj się</button>
+    </form>
+    <div id="authMessage" class="message" role="status"></div>
+  </section>
+</main>
+
+<section id="dashboardView" class="dashboard hidden">
+  <div class="dashhead">
+    <div><div class="eyebrow">Twój panel</div><h1 style="font-size:38px;margin:10px 0">Moje testy</h1><div id="userEmail" class="sub"></div></div>
+    <button id="logoutBtn" class="secondary">Wyloguj się</button>
+  </div>
+  <div class="empty">
+    <div style="font-size:42px">📝</div>
+    <h2>Twoje miejsce na testy</h2>
+    <p>Logowanie działa. W następnym kroku dodamy kreator testów<br>i zapisywanie ich na Twoim koncie.</p>
+  </div>
+</section>
+
+<script>
+  // Adres projektu Supabase
+  const SUPABASE_URL = 'https://mjnxhwmklewoxdtdhvmy.supabase.co';
+
+  // Wklej tutaj swój klucz Publishable (sb_publishable_...)
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_M2_5wQnYWrMKZnZECUtwWg_2y57I-Pd';
+
+  const authMessage = document.getElementById('authMessage');
+  const authView = document.getElementById('authView');
+  const dashboardView = document.getElementById('dashboardView');
+  const form = document.getElementById('authForm');
+  let mode = 'login';
+
+  const loginTab = document.getElementById('loginTab');
+  const signupTab = document.getElementById('signupTab');
+
+  function showMessage(text, type='') {
+    authMessage.className = 'message ' + type;
+    authMessage.textContent = text;
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    loginTab.classList.toggle('active', mode === 'login');
+    signupTab.classList.toggle('active', mode === 'signup');
+    document.getElementById('formTitle').textContent =
+      mode === 'login' ? 'Witaj ponownie!' : 'Utwórz konto';
+    document.getElementById('formSub').textContent =
+      mode === 'login' ? 'Zaloguj się, aby przejść do swoich testów.' :
+      'Zarejestruj się, aby zacząć tworzyć testy.';
+    document.getElementById('submitBtn').textContent =
+      mode === 'login' ? 'Zaloguj się' : 'Utwórz konto';
+    document.getElementById('password').autocomplete =
+      mode === 'login' ? 'current-password' : 'new-password';
+    showMessage('');
+  }
+
+  loginTab.addEventListener('click', () => setMode('login'));
+  signupTab.addEventListener('click', () => setMode('signup'));
+
+  let supabaseClient;
+
+  function initSupabase() {
+    if (SUPABASE_PUBLISHABLE_KEY === 'WKLEJ_TUTAJ_KLUCZ_PUBLICZNY') {
+      showMessage('Konfiguracja wymaga jeszcze klucza Publishable z Supabase.', 'error');
+      return false;
+    }
+    if (!window.supabase) {
+      showMessage('Nie udało się załadować biblioteki. Sprawdź połączenie z internetem.', 'error');
+      return false;
+    }
+    if (!supabaseClient) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    }
+    return true;
+  }
+
+  function showDashboard(user) {
+    authView.classList.add('hidden');
+    dashboardView.classList.remove('hidden');
+    document.getElementById('userEmail').textContent = user.email || 'Zalogowany użytkownik';
+  }
+
+  function showAuth() {
+    dashboardView.classList.add('hidden');
+    authView.classList.remove('hidden');
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!initSupabase()) return;
+
+    const button = document.getElementById('submitBtn');
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    button.disabled = true;
+    button.textContent = 'Chwileczkę…';
+    showMessage('');
+
+    try {
+      if (mode === 'signup') {
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) throw error;
+
+        if (data.session) {
+          showDashboard(data.user);
+        } else {
+          showMessage('Konto utworzone! Sprawdź skrzynkę e-mail i potwierdź adres, a następnie zaloguj się.', 'success');
+          setMode('login');
+        }
+      } else {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showDashboard(data.user);
+      }
+    } catch (error) {
+      showMessage(error.message || 'Wystąpił błąd. Spróbuj ponownie.', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = mode === 'login' ? 'Zaloguj się' : 'Utwórz konto';
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    if (!initSupabase()) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    showAuth();
+  });
+
+  async function startApp() {
+    if (!initSupabase()) return;
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    if (error) {
+      showMessage(error.message, 'error');
+      return;
+    }
+    if (session) showDashboard(session.user);
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      if (session) showDashboard(session.user);
+      else showAuth();
+    });
+  }
+
+  startApp();
+</script>
+</body>
+</html>
