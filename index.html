@@ -342,7 +342,7 @@ async function loadTests() {
   message('listMsg','','');
   try {
     const {data,error} = await init().from('tests')
-      .select('id,title,description,questions,created_at')
+      .select('id,title,description,questions,created_at,access_code,is_public')
       .order('created_at',{ascending:false});
     if (error) throw error;
     $('testList').innerHTML = '';
@@ -361,6 +361,41 @@ async function loadTests() {
       const meta = document.createElement('p');
       meta.className = 'muted';
       meta.textContent = `${Array.isArray(test.questions)?test.questions.length:0} pytań · ${new Date(test.created_at).toLocaleDateString('pl-PL')}`;
+      const publish = document.createElement('button');
+publish.className = 'primary';
+publish.textContent = test.access_code ? 'Kopiuj link' : 'Opublikuj test';
+
+publish.onclick = async () => {
+  publish.disabled = true;
+
+  try {
+    let code = test.access_code;
+
+    if (!code) {
+      code = Math.random().toString(36).slice(2, 10).toUpperCase();
+
+      const { data, error } = await init()
+        .from('tests')
+        .update({ access_code: code, is_public: true })
+        .eq('id', test.id)
+        .eq('user_id', currentUser.id)
+        .select('access_code')
+        .single();
+
+      if (error) throw error;
+      code = data.access_code;
+    }
+
+    const link = `${location.origin}${location.pathname}?test=${encodeURIComponent(code)}`;
+    await navigator.clipboard.writeText(link);
+    alert('Link do testu skopiowany!\n\n' + link);
+    await loadTests();
+  } catch (err) {
+    alert('Nie udało się opublikować testu: ' + err.message);
+  } finally {
+    publish.disabled = false;
+  }
+};
       const del = document.createElement('button');
       del.className = 'secondary';
       del.textContent = 'Usuń test';
@@ -376,7 +411,7 @@ async function loadTests() {
           message('listMsg','Test usunięty.','success');
         }
       };
-      card.append(title,description,meta,del);
+      card.append(title, description, meta, publish, del);
       $('testList').appendChild(card);
     });
   } catch(err) {
